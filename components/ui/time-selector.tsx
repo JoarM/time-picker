@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./button";
 import { cn } from "@/lib/utils";
-import { MouseEvent } from "react";
+import { MouseEvent, TouchEvent } from "react";
 
 export type TimeSelectorProps = {
 
@@ -51,16 +51,21 @@ function TimeSelector({
     return angle;
   }
 
+  function getCurrentClockHandleLength() {
+    const length = Number(clockHandle.current?.style.getPropertyValue("--radius").split("px")[0]);
+    return length;
+  }
+
   function setHandleToMinutePosition() {
-    const hours = time.getHours();
     const minutes = time.getMinutes();
     const angle = minutes / 60 * 360;
     const currentAngle = getCurrentClockHandleAngle();
+    console.log(currentAngle);
     const duration = 200 + 300 * toAlwaysPosetive(angle - currentAngle) / 360;
     animate(currentAngle, angle, duration, (value) => {
       clockHandle.current?.style.setProperty("--rotation", `${value}deg`);
     });
-    if (hours > 12) {
+    if (getCurrentClockHandleLength() === 180) {
       animate(180, 256, duration, (value) => {
         clockHandle.current?.style.setProperty("--radius", `${value}px/2`);
       });
@@ -91,7 +96,7 @@ function TimeSelector({
       clockHandle.current?.style.setProperty("--radius", "256px/2");
     }
     
-    const angle = calculateAngle(x, y) + 90;
+    const angle = (calculateAngle(x, y) + 90) % 360;
     clockHandle.current?.style.setProperty("--rotation", `${angle}deg`);
     
     const hour = inner ? (Math.round(angle / 360 * 12) % 12) + 12 : Math.round(angle / 360 * 12) % 12;
@@ -106,7 +111,7 @@ function TimeSelector({
       return;
     }
 
-    const angle = calculateAngle(x, y) + 90;
+    const angle = (calculateAngle(x, y) + 90) % 360;
     clockHandle.current?.style.setProperty("--rotation", `${angle}deg`);
 
     const minute = Math.round(angle / 360 * 60) % 60;
@@ -123,6 +128,21 @@ function TimeSelector({
 
     const x = e.pageX - e.currentTarget.offsetLeft - ((e.currentTarget.offsetWidth / 2) * -1) - e.currentTarget.offsetWidth;
     const y = e.pageY - e.currentTarget.offsetTop - ((e.currentTarget.offsetHeight / 2) * -1) - e.currentTarget.offsetHeight;
+
+    if (picking === "hour") {
+      updateHours(x, y);
+    } else {
+      updateMinutes(x, y);
+    }
+  }
+
+  function handleTouchMove(e: TouchEvent<HTMLDivElement>) {
+    if (!isMouseDown) {
+      return;
+    }
+
+    const x = e.touches[0].pageX - e.currentTarget.offsetLeft - ((e.currentTarget.offsetWidth / 2) * -1) - e.currentTarget.offsetWidth;
+    const y = e.touches[0].pageY - e.currentTarget.offsetTop - ((e.currentTarget.offsetHeight / 2) * -1) - e.currentTarget.offsetHeight;
 
     if (picking === "hour") {
       updateHours(x, y);
@@ -148,6 +168,19 @@ function TimeSelector({
     setIsMouseDown(true);
   }
 
+  function handleTouchStart(e: TouchEvent<HTMLDivElement>) {
+    const x = e.touches[0].pageX - e.currentTarget.offsetLeft - ((e.currentTarget.offsetWidth / 2) * -1) - e.currentTarget.offsetWidth;
+    const y = e.touches[0].pageY - e.currentTarget.offsetTop - ((e.currentTarget.offsetHeight / 2) * -1) - e.currentTarget.offsetHeight;
+
+    if (picking === "hour") {
+      updateHours(x, y);
+    } else {
+      updateMinutes(x, y);
+    }
+
+    setIsMouseDown(true);
+  }
+
   function handleMouseUp(e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) {
     if (e.button != 0) {
       return;
@@ -157,7 +190,21 @@ function TimeSelector({
       return;
     }
 
-    clockHandle.current?.style.setProperty("--radius", "256px/2");
+    if (picking === "minute") {
+      setHandleToMinutePosition();
+    }
+    setIsMouseDown(false);
+    setPicking("minute");
+  }
+
+  function handleTouchEnd() {
+    if (!isMouseDown) {
+      return;
+    }
+
+    if (picking === "minute") {
+      setHandleToMinutePosition();
+    }
     setIsMouseDown(false);
     setPicking("minute");
   }
@@ -225,6 +272,9 @@ function TimeSelector({
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchStart={handleTouchStart}
       >
         <div className="[--rotation:_0deg] [--radius:_256px/2]" ref={clockHandle}>
           <span className="absolute size-5 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-muted-foreground/50"></span>
