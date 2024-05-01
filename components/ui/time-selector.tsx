@@ -122,6 +122,7 @@ function TimeSelector({
   }
 
   function handleMouseMove(e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) {
+    e.preventDefault();
     if (!isMouseDown) {
       return;
     }
