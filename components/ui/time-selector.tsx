@@ -200,7 +200,7 @@ function TimeSelector({
     setPicking("minute");
   }
 
-  function handleTouchEnd(e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) {
+  function handleTouchEnd(e: TouchEvent<HTMLDivElement>) {
     e.preventDefault();
     if (!isMouseDown) {
       return;
