@@ -21,7 +21,7 @@ function TimeSelector({
 
   function setHandleToHourPosition() {
     const hours = time.getHours();
-    const angle = (hours / 12 * 360) - 360;
+    const angle = (hours / 12 * 360) % 360; 
     const currentAngle = getCurrentClockHandleAngle();
     const duration = 200 + 300 * toAlwaysPosetive(angle - currentAngle) / 360;
     animate(currentAngle, angle, duration, (value) => {
@@ -31,7 +31,7 @@ function TimeSelector({
       animate(256, 180, duration, (value) => {
         clockHandle.current?.style.setProperty("--radius", `${value}px/2`);
       });
-    } else {
+    } else if (getCurrentClockHandleLength() != 256) {
       animate(180, 256, duration, (value) => {
         clockHandle.current?.style.setProperty("--radius", `${value}px/2`);
       });
@@ -52,7 +52,6 @@ function TimeSelector({
     const minutes = time.getMinutes();
     const angle = minutes / 60 * 360;
     const currentAngle = getCurrentClockHandleAngle();
-    console.log(currentAngle);
     const duration = 200 + 300 * toAlwaysPosetive(angle - currentAngle) / 360;
     animate(currentAngle, angle, duration, (value) => {
       clockHandle.current?.style.setProperty("--rotation", `${value}deg`);
@@ -162,13 +161,16 @@ function TimeSelector({
   }
 
   function handleTouchStart(e: TouchEvent<HTMLDivElement>) {
+    e.preventDefault();
     const x = e.touches[0].pageX - e.currentTarget.offsetLeft - ((e.currentTarget.offsetWidth / 2) * -1) - e.currentTarget.offsetWidth;
     const y = e.touches[0].pageY - e.currentTarget.offsetTop - ((e.currentTarget.offsetHeight / 2) * -1) - e.currentTarget.offsetHeight;
 
-    if (picking === "hour") {
-      updateHours(x, y);
-    } else {
-      updateMinutes(x, y);
+    if (!isMouseDown) {
+      if (picking === "hour") {
+        updateHours(x, y);
+      } else {
+        updateMinutes(x, y);
+      }
     }
 
     setIsMouseDown(true);
@@ -190,7 +192,8 @@ function TimeSelector({
     setPicking("minute");
   }
 
-  function handleTouchEnd() {
+  function handleTouchEnd(e: TouchEvent<HTMLDivElement>) {
+    e.preventDefault();
     if (!isMouseDown) {
       return;
     }
