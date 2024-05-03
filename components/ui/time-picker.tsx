@@ -6,17 +6,20 @@ import React from "react";
 import { TimePickerContext, useTimePickerContext } from "@/contexts/time-picker-context";
 import { useTimePicker } from "@/hooks/use-time-picker";
 
-export type TimePickerProps = {
-  className?: string
+export interface TimePickerProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
+  selected?: Date
+  onSelected?: (date: Date) => any
 }
 
 const circlePlacer = "opacity-75 text-sm font-regular absolute size-9 rounded-full inline-flex justify-center items-center top-[calc(50%-(var(--radius)-var(--padding))*cos(var(--rotation,_0deg)))] right-[calc(50%-(var(--radius)-var(--padding))*sin(var(--rotation,_0deg)))] translate-x-1/2 -translate-y-1/2 cursor-pointer select-none";
 
 function TimePicker({
   className,
+  selected,
+  onSelected,
   ...props
 }: TimePickerProps) {
-  const timePicker = useTimePicker();
+  const timePicker = useTimePicker(selected, onSelected);
 
   return (
     <TimePickerContext.Provider value={timePicker}>
@@ -58,7 +61,14 @@ function TimePickerHandle({
   const { clockHandle } = timePicker;
 
   return (
-    <div className={cn("[--rotation:_0deg] [--radius:_256px/2]", className)} ref={clockHandle} {...props}>
+    <div 
+    className={className} 
+    style={{
+      "--rotation": "0deg",
+      "--radius": "256px/2"
+    } as unknown as React.CSSProperties} 
+    ref={clockHandle} {...props}
+    >
       <span className="absolute size-5 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-muted-foreground/50"></span>
       <span className={cn(circlePlacer, "bg-primary opacity-100")}></span>
       <span className="absolute size-2 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary"></span>
@@ -77,9 +87,7 @@ function TimePickerHeader() {
     <div className="flex mx-1 text-3xl items-center gap-1 justify-center group" data-selecting={picking}>
       <Button
       className="h-14 w-20 text-3xl group-data-[selecting='hour']:bg-primary/50 group-data-[selecting='hour']:text-primary-foreground transition-colors" 
-      onClick={() => {
-        setPicking("hour");
-      }}
+      onClick={() => setPicking("hour")}
       variant="secondary"
       >
         {time.getHours().toString().padStart(2, "0")}
@@ -87,9 +95,7 @@ function TimePickerHeader() {
       <span>:</span>
       <Button
       className="h-14 w-20 text-3xl group-data-[selecting='minute']:bg-primary/50 group-data-[selecting='minute']:text-primary-foreground transition-colors" 
-      onClick={() => {
-        setPicking("minute");
-      }}
+      onClick={() => setPicking("minute")}
       variant="secondary"
       >
         {time.getMinutes().toString().padStart(2, "0")}

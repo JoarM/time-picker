@@ -13,14 +13,13 @@ export type TimePickerProps = {
   picking: "hour" | "minute";
   setPicking: Dispatch<SetStateAction<"hour" | "minute">>;
   time: Date;
-  setTime: Dispatch<SetStateAction<Date>>;
   clockHandle: RefObject<HTMLDivElement>;
 }
 
-export function useTimePicker() {
+export function useTimePicker(selected?: Date, onSelected?: (date: Date) => any) {
   const [picking, setPicking] = useState<"hour" | "minute">("hour");
   const [isMouseDown, setIsMouseDown] = useState(false);
-  const [time, setTime] =  useState(new Date());
+  const [time, setTime] = selected ? [selected, onSelected] : useState(new Date());
   const clockHandle = useRef<HTMLDivElement>(null);
 
   function setHandleToHourPosition() {
@@ -36,6 +35,7 @@ export function useTimePicker() {
         clockHandle.current?.style.setProperty("--radius", `${value}px/2`);
       });
     } else if (getCurrentClockHandleLength() != 256) {
+      console.log(getCurrentClockHandleLength());
       animate(180, 256, duration, (value) => {
         clockHandle.current?.style.setProperty("--radius", `${value}px/2`);
       });
@@ -96,7 +96,7 @@ export function useTimePicker() {
     const nextTime = new Date();
     nextTime.setHours(hour);
     nextTime.setMinutes(time.getMinutes());
-    setTime(nextTime);
+    setTime && setTime(nextTime);
   }
 
   function updateMinutes(x: number, y: number) {
@@ -111,7 +111,7 @@ export function useTimePicker() {
     const nextTime = new Date();
     nextTime.setHours(time.getHours());
     nextTime.setMinutes(minute);
-    setTime(nextTime);
+    setTime && setTime(nextTime);
   }
 
   function handleMouseMove(e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) {
@@ -226,5 +226,5 @@ export function useTimePicker() {
     }
   }
 
-  return { handleMouseDown, handleMouseLeave, handleMouseMove, handleMouseUp, handleTouchEnd, handleTouchMove, handleTouchStart, picking, setPicking, time, setTime, clockHandle }
+  return { handleMouseDown, handleMouseLeave, handleMouseMove, handleMouseUp, handleTouchEnd, handleTouchMove, handleTouchStart, picking, setPicking, time, clockHandle }
 }
