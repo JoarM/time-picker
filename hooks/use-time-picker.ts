@@ -1,5 +1,6 @@
 import { animate } from "@/lib/animations";
 import { toAlwaysPosetive, pythagoras, calculateAngle } from "@/lib/math";
+import { getRects } from "@/lib/utils";
 import { useState, useRef, useEffect, MouseEvent, TouchEvent, Dispatch, SetStateAction, RefObject } from "react";
 
 export type TimePickerProps = {
@@ -119,9 +120,10 @@ export function useTimePicker(selected?: Date, onSelected?: (date: Date) => any)
     if (!isMouseDown) {
       return;
     }
+    const rects = getRects(e.currentTarget);
 
-    const x = e.pageX - e.currentTarget.offsetLeft - ((e.currentTarget.offsetWidth / 2) * -1) - e.currentTarget.offsetWidth;
-    const y = e.pageY - e.currentTarget.offsetTop - ((e.currentTarget.offsetHeight / 2) * -1) - e.currentTarget.offsetHeight;
+    const x = e.pageX - rects.left - ((rects.width / 2) * -1) - rects.width;
+    const y = e.pageY - rects.top - ((rects.height / 2) * -1) - rects.height;
 
     if (picking === "hour") {
       updateHours(x, y);
@@ -135,8 +137,9 @@ export function useTimePicker(selected?: Date, onSelected?: (date: Date) => any)
       return;
     }
 
-    const x = e.touches[0].pageX - e.currentTarget.offsetLeft - ((e.currentTarget.offsetWidth / 2) * -1) - e.currentTarget.offsetWidth;
-    const y = e.touches[0].pageY - e.currentTarget.offsetTop - ((e.currentTarget.offsetHeight / 2) * -1) - e.currentTarget.offsetHeight;
+    const rects = getRects(e.currentTarget);
+    const x = e.touches[0].pageX - rects.left - ((rects.width / 2) * -1) - rects.width;
+    const y = e.touches[0].pageY - rects.top - ((rects.height / 2) * -1) - rects.height;
 
     if (picking === "hour") {
       updateHours(x, y);
@@ -150,8 +153,9 @@ export function useTimePicker(selected?: Date, onSelected?: (date: Date) => any)
       return;
     }
 
-    const x = e.pageX - e.currentTarget.offsetLeft - ((e.currentTarget.offsetWidth / 2) * -1) - e.currentTarget.offsetWidth;
-    const y = e.pageY - e.currentTarget.offsetTop - ((e.currentTarget.offsetHeight / 2) * -1) - e.currentTarget.offsetHeight;
+    const rects = getRects(e.currentTarget);
+    const x = e.pageX - rects.left - ((rects.width / 2) * -1) - rects.width;
+    const y = e.pageY - rects.top - ((rects.height / 2) * -1) - rects.height;
 
     if (pythagoras(x, y) < 10) {
       return;
@@ -168,8 +172,11 @@ export function useTimePicker(selected?: Date, onSelected?: (date: Date) => any)
 
   function handleTouchStart(e: TouchEvent<HTMLDivElement>) {
     e.preventDefault();
-    const x = e.touches[0].pageX - e.currentTarget.offsetLeft - ((e.currentTarget.offsetWidth / 2) * -1) - e.currentTarget.offsetWidth;
-    const y = e.touches[0].pageY - e.currentTarget.offsetTop - ((e.currentTarget.offsetHeight / 2) * -1) - e.currentTarget.offsetHeight;
+
+    const rects = getRects(e.currentTarget);
+    const x = e.touches[0].pageX - rects.left - ((rects.width / 2) * -1) - rects.width;
+    const y = e.touches[0].pageY - rects.top - ((rects.height / 2) * -1) - rects.height;
+
     if (pythagoras(x, y) < 10) {
       return;
     }
