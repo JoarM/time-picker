@@ -23,6 +23,10 @@ export function useTimePicker(selected?: Date, onSelected?: (date: Date) => any)
   const [time, setTime] = selected ? [selected, onSelected] : useState(new Date());
   const clockHandle = useRef<HTMLDivElement>(null);
 
+  function scrollListner(e: Event) {
+    e.preventDefault();
+  }
+
   function setHandleToHourPosition() {
     const hours = time.getHours();
     const angle = (hours / 12 * 360) % 360; 
@@ -69,6 +73,14 @@ export function useTimePicker(selected?: Date, onSelected?: (date: Date) => any)
   useEffect(() => {
     setHandleToHourPosition();
   }, []);
+
+  useEffect(() => {
+    if (isMouseDown) {
+      document.getElementsByTagName("html")[0].style.overflow = "clip";
+    } else {
+      document.getElementsByTagName("html")[0].style.overflow = "auto";
+    }
+  }, [isMouseDown]);
 
   useEffect(() => {
     if (picking === "hour") {
@@ -122,8 +134,8 @@ export function useTimePicker(selected?: Date, onSelected?: (date: Date) => any)
     }
     const rects = getRects(e.currentTarget);
 
-    const x = e.pageX - rects.left - ((rects.width / 2) * -1) - rects.width;
-    const y = e.pageY - rects.top - ((rects.height / 2) * -1) - rects.height;
+    const x = e.clientX - rects.left - ((rects.width / 2) * -1) - rects.width;
+    const y = e.clientY - rects.top - ((rects.height / 2) * -1) - rects.height;
 
     if (picking === "hour") {
       updateHours(x, y);
@@ -133,13 +145,14 @@ export function useTimePicker(selected?: Date, onSelected?: (date: Date) => any)
   }
 
   function handleTouchMove(e: TouchEvent<HTMLDivElement>) {
+    e.preventDefault();
     if (!isMouseDown) {
       return;
     }
 
     const rects = getRects(e.currentTarget);
-    const x = e.touches[0].pageX - rects.left - ((rects.width / 2) * -1) - rects.width;
-    const y = e.touches[0].pageY - rects.top - ((rects.height / 2) * -1) - rects.height;
+    const x = e.touches[0].clientX - rects.left - ((rects.width / 2) * -1) - rects.width;
+    const y = e.touches[0].clientY - rects.top - ((rects.height / 2) * -1) - rects.height;
 
     if (picking === "hour") {
       updateHours(x, y);
@@ -154,8 +167,8 @@ export function useTimePicker(selected?: Date, onSelected?: (date: Date) => any)
     }
 
     const rects = getRects(e.currentTarget);
-    const x = e.pageX - rects.left - ((rects.width / 2) * -1) - rects.width;
-    const y = e.pageY - rects.top - ((rects.height / 2) * -1) - rects.height;
+    const x = e.clientX - rects.left - ((rects.width / 2) * -1) - rects.width;
+    const y = e.clientY - rects.top - ((rects.height / 2) * -1) - rects.height;
 
     if (pythagoras(x, y) < 10) {
       return;
@@ -174,8 +187,8 @@ export function useTimePicker(selected?: Date, onSelected?: (date: Date) => any)
     e.preventDefault();
 
     const rects = getRects(e.currentTarget);
-    const x = e.touches[0].pageX - rects.left - ((rects.width / 2) * -1) - rects.width;
-    const y = e.touches[0].pageY - rects.top - ((rects.height / 2) * -1) - rects.height;
+    const x = e.touches[0].clientX - rects.left - ((rects.width / 2) * -1) - rects.width;
+    const y = e.touches[0].clientY - rects.top - ((rects.height / 2) * -1) - rects.height;
 
     if (pythagoras(x, y) < 10) {
       return;

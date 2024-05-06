@@ -11,7 +11,7 @@ export interface TimePickerProps extends React.HtmlHTMLAttributes<HTMLDivElement
   onSelected?: (date: Date) => any
 }
 
-const circlePlacer = "opacity-75 text-muted-foreground text-sm font-regular absolute size-9 rounded-full inline-flex justify-center items-center top-[calc(50%-(var(--radius)-var(--padding))*cos(var(--rotation,_0deg)))] right-[calc(50%-(var(--radius)-var(--padding))*sin(var(--rotation,_0deg)))] translate-x-1/2 -translate-y-1/2 cursor-pointer select-none";
+const circlePlacer = "text-muted-foreground text-sm font-regular absolute size-9 rounded-full inline-flex justify-center items-center top-[calc(50%-(var(--radius)-var(--padding))*cos(var(--rotation,_0deg)))] right-[calc(50%-(var(--radius)-var(--padding))*sin(var(--rotation,_0deg)))] translate-x-1/2 -translate-y-1/2 cursor-pointer select-none";
 
 function TimePicker({
   className,
